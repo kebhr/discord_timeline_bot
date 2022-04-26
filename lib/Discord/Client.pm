@@ -14,7 +14,7 @@ use DDP;
 sub new {
     my $class = shift;
     my $self = {
-
+        last_seq => 0,
     };
     return bless $self, $class;
 }
@@ -41,14 +41,18 @@ sub connect {
         $connection->on(each_message => sub {
             my ($connection, $message) = @_;
             my $body = decode_json($message->body);
-            # p $body;
+
+            $self->{last_seq} = $body->{s};
 
             my $op_code = $body->{op};
 
             if ($op_code == 10) {
-                my $w = AnyEvent->timer (after => 0, interval => $body->{d}{heartbeat_interval} / 1000, cb => sub {
-                    # TODO: send heartbeat
-                    p @_;
+                my $w = AnyEvent->timer (after => $body->{d}{heartbeat_interval} / 1000, interval => $body->{d}{heartbeat_interval} / 1000, cb => sub {
+                    my $heartbeat = encode_json({
+                        op => 1,
+                        d => $self->{last_seq}
+                    });
+                    $connection->send($heartbeat);
                 });
 
                 my $json = encode_json({
