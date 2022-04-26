@@ -5,6 +5,6 @@
 ```bash
 $ carton install
 $ cp app.conf.example app.conf
-$ nano app.conf                 # insert token
+$ nano app.conf                 # set token and webhook url
 $ perl ./main.pl
 ```

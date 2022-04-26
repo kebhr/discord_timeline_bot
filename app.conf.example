@@ -1,3 +1,4 @@
 {
-    token => "INSERT_YOUR_TOKEN"
+    token => "INSERT_YOUR_TOKEN",
+    timeline_webhook_url => "INSERT_YOUR_TIMELINE_WEBHOOK_URL"
 }

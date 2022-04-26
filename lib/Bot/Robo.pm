@@ -15,7 +15,7 @@ sub new {
         discord => $discord
     };
 
-    $discord->connect($config->{token});
+    $discord->connect($config->{token}, $config->{timeline_webhook_url});
 
     return bless $self, $class;
 };

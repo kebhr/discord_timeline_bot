@@ -15,15 +15,17 @@ sub new {
     my $class = shift;
     my $self = {
         last_seq => 0,
+        times => {},
     };
     return bless $self, $class;
 }
 
 sub connect {
     p @_;
-    
+
     my $self = shift;
     my $token = shift;
+    my $webhook_url = shift;
 
     my $ua = LWP::UserAgent->new;
     $ua->agent("discord_timeline_bot/0.1");
@@ -71,8 +73,25 @@ sub connect {
                 $connection->send($json);
             }
 
-            if ($body->{t} eq "MESSAGE_CREATE") {
-                print $body->{d}{author}{username} . " says " . $body->{d}{content} . "\n";
+            if ($body->{t} eq "MESSAGE_CREATE" && !$body->{d}{author}{bot}) {
+                my $req = HTTP::Request->new(POST => $webhook_url);
+                $req->header(
+                    "Content-Type" => "application/json"
+                );
+
+                my $msg_url = "https://discord.com/channels/" . $body->{d}{guild_id} . "/" . $body->{d}{channel_id} . "/" . $body->{d}{id};
+
+                $req->content(encode_json({
+                        content => "[" . $self->{times}->{$body->{d}{channel_id}}{topic} . "](" . $msg_url . ") " . $body->{d}{content},
+                        username => $body->{d}{author}{username},
+                    }));
+
+                my $res = $ua->request($req);
+            } elsif ($body->{t} eq "GUILD_CREATE") {
+                $self->{times}{$_->{id}} = {
+                    name => $_->{name},
+                    topic => $_->{topic},
+                } for @{[grep { $_->{name} =~ /^times_.*$/ } @{$body->{d}{channels}}]};
             }
         });
     });
