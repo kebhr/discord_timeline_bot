@@ -1,0 +1,374 @@
+# carton snapshot format: version 1.0
+DISTRIBUTIONS
+  AnyEvent-7.17
+    pathname: M/ML/MLEHMANN/AnyEvent-7.17.tar.gz
+    provides:
+      AE undef
+      AE::Log::COLLECT undef
+      AE::Log::FILTER undef
+      AE::Log::LOG undef
+      AnyEvent 7.17
+      AnyEvent::Base 7.17
+      AnyEvent::CondVar 7.17
+      AnyEvent::CondVar::Base 7.17
+      AnyEvent::DNS undef
+      AnyEvent::Debug undef
+      AnyEvent::Debug::Backtrace undef
+      AnyEvent::Debug::Wrap undef
+      AnyEvent::Debug::Wrapped undef
+      AnyEvent::Debug::shell undef
+      AnyEvent::Handle undef
+      AnyEvent::IO undef
+      AnyEvent::IO::IOAIO undef
+      AnyEvent::IO::Perl undef
+      AnyEvent::Impl::Cocoa undef
+      AnyEvent::Impl::EV undef
+      AnyEvent::Impl::Event undef
+      AnyEvent::Impl::EventLib undef
+      AnyEvent::Impl::FLTK undef
+      AnyEvent::Impl::Glib undef
+      AnyEvent::Impl::IOAsync undef
+      AnyEvent::Impl::Irssi undef
+      AnyEvent::Impl::POE undef
+      AnyEvent::Impl::Perl undef
+      AnyEvent::Impl::Qt undef
+      AnyEvent::Impl::Qt::Io undef
+      AnyEvent::Impl::Qt::Timer undef
+      AnyEvent::Impl::Tk undef
+      AnyEvent::Impl::UV undef
+      AnyEvent::Log undef
+      AnyEvent::Log::COLLECT undef
+      AnyEvent::Log::Ctx undef
+      AnyEvent::Log::FILTER undef
+      AnyEvent::Log::LOG undef
+      AnyEvent::Loop undef
+      AnyEvent::Socket undef
+      AnyEvent::Strict undef
+      AnyEvent::TLS undef
+      AnyEvent::Util undef
+    requirements:
+      Canary::Stability 0
+      ExtUtils::MakeMaker 6.52
+  AnyEvent-Connector-0.03
+    pathname: T/TO/TOSHIOITO/AnyEvent-Connector-0.03.tar.gz
+    provides:
+      AnyEvent::Connector 0.03
+      AnyEvent::Connector::Proxy::http undef
+    requirements:
+      AnyEvent::Handle 0
+      AnyEvent::Socket 0
+      Module::Build 0.42
+      Module::Build::Prereqs::FromCPANfile 0.02
+      URI 0
+  AnyEvent-WebSocket-Client-0.54
+    pathname: P/PL/PLICEASE/AnyEvent-WebSocket-Client-0.54.tar.gz
+    provides:
+      AnyEvent::WebSocket::Client 0.54
+      AnyEvent::WebSocket::Connection 0.54
+      AnyEvent::WebSocket::Message 0.54
+    requirements:
+      AnyEvent 7.13
+      AnyEvent::Connector 0.03
+      ExtUtils::MakeMaker 0
+      Moo 2.0
+      PerlX::Maybe 0.003
+      Protocol::WebSocket 0.20
+      URI 1.53
+      URI::ws 0
+      perl 5.008
+  Canary-Stability-2013
+    pathname: M/ML/MLEHMANN/Canary-Stability-2013.tar.gz
+    provides:
+      Canary::Stability 2013
+    requirements:
+      ExtUtils::MakeMaker 0
+  Class-Method-Modifiers-2.13
+    pathname: E/ET/ETHER/Class-Method-Modifiers-2.13.tar.gz
+    provides:
+      Class::Method::Modifiers 2.13
+    requirements:
+      B 0
+      Carp 0
+      Exporter 0
+      ExtUtils::MakeMaker 0
+      base 0
+      perl 5.006
+      strict 0
+      warnings 0
+  Data-Printer-1.000004
+    pathname: G/GA/GARU/Data-Printer-1.000004.tar.gz
+    provides:
+      DDP undef
+      Data::Printer 1.000004
+      Data::Printer::Common undef
+      Data::Printer::Config undef
+      Data::Printer::Filter undef
+      Data::Printer::Filter::ARRAY undef
+      Data::Printer::Filter::CODE undef
+      Data::Printer::Filter::ContentType undef
+      Data::Printer::Filter::DB undef
+      Data::Printer::Filter::DateTime undef
+      Data::Printer::Filter::Digest undef
+      Data::Printer::Filter::FORMAT undef
+      Data::Printer::Filter::GLOB undef
+      Data::Printer::Filter::GenericClass undef
+      Data::Printer::Filter::HASH undef
+      Data::Printer::Filter::REF undef
+      Data::Printer::Filter::Regexp undef
+      Data::Printer::Filter::SCALAR undef
+      Data::Printer::Filter::VSTRING undef
+      Data::Printer::Filter::Web undef
+      Data::Printer::Object undef
+      Data::Printer::Profile undef
+      Data::Printer::Profile::Dumper undef
+      Data::Printer::Profile::JSON undef
+      Data::Printer::Theme undef
+      Data::Printer::Theme::Classic undef
+      Data::Printer::Theme::Material undef
+      Data::Printer::Theme::Monokai undef
+      Data::Printer::Theme::Solarized undef
+    requirements:
+      ExtUtils::MakeMaker 0
+      Fcntl 0
+      File::Spec 0
+      File::Temp 0
+      Scalar::Util 0
+      Test::More 0
+      version 0.77
+  Module-Build-0.4231
+    pathname: L/LE/LEONT/Module-Build-0.4231.tar.gz
+    provides:
+      Module::Build 0.4231
+      Module::Build::Base 0.4231
+      Module::Build::Compat 0.4231
+      Module::Build::Config 0.4231
+      Module::Build::Cookbook 0.4231
+      Module::Build::Dumper 0.4231
+      Module::Build::Notes 0.4231
+      Module::Build::PPMMaker 0.4231
+      Module::Build::Platform::Default 0.4231
+      Module::Build::Platform::MacOS 0.4231
+      Module::Build::Platform::Unix 0.4231
+      Module::Build::Platform::VMS 0.4231
+      Module::Build::Platform::VOS 0.4231
+      Module::Build::Platform::Windows 0.4231
+      Module::Build::Platform::aix 0.4231
+      Module::Build::Platform::cygwin 0.4231
+      Module::Build::Platform::darwin 0.4231
+      Module::Build::Platform::os2 0.4231
+      Module::Build::PodParser 0.4231
+    requirements:
+      CPAN::Meta 2.142060
+      Cwd 0
+      Data::Dumper 0
+      ExtUtils::CBuilder 0.27
+      ExtUtils::Install 0
+      ExtUtils::Manifest 0
+      ExtUtils::Mkbootstrap 0
+      ExtUtils::ParseXS 2.21
+      File::Basename 0
+      File::Compare 0
+      File::Copy 0
+      File::Find 0
+      File::Path 0
+      File::Spec 0.82
+      Getopt::Long 0
+      Module::Metadata 1.000002
+      Perl::OSType 1
+      Pod::Man 2.17
+      TAP::Harness 3.29
+      Text::Abbrev 0
+      Text::ParseWords 0
+      perl 5.006001
+      version 0.87
+  Module-Build-Prereqs-FromCPANfile-0.02
+    pathname: T/TO/TOSHIOITO/Module-Build-Prereqs-FromCPANfile-0.02.tar.gz
+    provides:
+      Module::Build::Prereqs::FromCPANfile 0.02
+    requirements:
+      CPAN::Meta::Prereqs 2.132830
+      Exporter 0
+      Module::CPANfile 1.0000
+      version 0.80
+  Module-CPANfile-1.1004
+    pathname: M/MI/MIYAGAWA/Module-CPANfile-1.1004.tar.gz
+    provides:
+      Module::CPANfile 1.1004
+      Module::CPANfile::Environment undef
+      Module::CPANfile::Prereq undef
+      Module::CPANfile::Prereqs undef
+      Module::CPANfile::Requirement undef
+    requirements:
+      CPAN::Meta 2.12091
+      CPAN::Meta::Prereqs 2.12091
+      ExtUtils::MakeMaker 0
+      parent 0
+  Moo-2.005004
+    pathname: H/HA/HAARG/Moo-2.005004.tar.gz
+    provides:
+      Method::Generate::Accessor undef
+      Method::Generate::BuildAll undef
+      Method::Generate::Constructor undef
+      Method::Generate::DemolishAll undef
+      Moo 2.005004
+      Moo::HandleMoose undef
+      Moo::HandleMoose::FakeConstructor undef
+      Moo::HandleMoose::FakeMetaClass undef
+      Moo::HandleMoose::_TypeMap undef
+      Moo::Object undef
+      Moo::Role 2.005004
+      Moo::_Utils undef
+      Moo::sification undef
+      oo undef
+    requirements:
+      Carp 0
+      Class::Method::Modifiers 1.10
+      Exporter 0
+      ExtUtils::MakeMaker 0
+      Role::Tiny 2.002003
+      Scalar::Util 1.00
+      Sub::Defer 2.006006
+      Sub::Quote 2.006006
+      perl 5.006
+  Mozilla-CA-20211001
+    pathname: A/AB/ABH/Mozilla-CA-20211001.tar.gz
+    provides:
+      Mozilla::CA 20211001
+    requirements:
+      ExtUtils::MakeMaker 0
+      perl 5.006
+  Net-SSLeay-1.92
+    pathname: C/CH/CHRISN/Net-SSLeay-1.92.tar.gz
+    provides:
+      Net::SSLeay 1.92
+      Net::SSLeay::Handle 1.92
+    requirements:
+      English 0
+      ExtUtils::MakeMaker 0
+      File::Spec::Functions 0
+      MIME::Base64 0
+      Text::Wrap 0
+      constant 0
+      perl 5.008001
+  PerlX-Maybe-1.202
+    pathname: T/TO/TOBYINK/PerlX-Maybe-1.202.tar.gz
+    provides:
+      PerlX::Maybe 1.202
+      Syntax::Feature::Maybe 1.202
+    requirements:
+      ExtUtils::MakeMaker 6.17
+      Scalar::Util 0
+      perl 5.006
+  Protocol-WebSocket-0.26
+    pathname: V/VT/VTI/Protocol-WebSocket-0.26.tar.gz
+    provides:
+      Protocol::WebSocket 0.26
+      Protocol::WebSocket::Client undef
+      Protocol::WebSocket::Cookie undef
+      Protocol::WebSocket::Cookie::Request undef
+      Protocol::WebSocket::Cookie::Response undef
+      Protocol::WebSocket::Frame undef
+      Protocol::WebSocket::Handshake undef
+      Protocol::WebSocket::Handshake::Client undef
+      Protocol::WebSocket::Handshake::Server undef
+      Protocol::WebSocket::Message undef
+      Protocol::WebSocket::Request undef
+      Protocol::WebSocket::Response undef
+      Protocol::WebSocket::Stateful undef
+      Protocol::WebSocket::URL undef
+    requirements:
+      Carp 0
+      Digest::MD5 0
+      Digest::SHA 0
+      Module::Build::Tiny 0.035
+      Scalar::Util 0
+  Role-Tiny-2.002004
+    pathname: H/HA/HAARG/Role-Tiny-2.002004.tar.gz
+    provides:
+      Role::Tiny 2.002004
+      Role::Tiny::With 2.002004
+    requirements:
+      Exporter 5.57
+      perl 5.006
+  Sub-Quote-2.006006
+    pathname: H/HA/HAARG/Sub-Quote-2.006006.tar.gz
+    provides:
+      Sub::Defer 2.006006
+      Sub::Quote 2.006006
+    requirements:
+      ExtUtils::MakeMaker 0
+      Scalar::Util 0
+      perl 5.006
+  URI-5.10
+    pathname: O/OA/OALDERS/URI-5.10.tar.gz
+    provides:
+      URI 5.10
+      URI::Escape 5.10
+      URI::Heuristic 5.10
+      URI::IRI 5.10
+      URI::QueryParam 5.10
+      URI::Split 5.10
+      URI::URL 5.10
+      URI::WithBase 5.10
+      URI::data 5.10
+      URI::file 5.10
+      URI::file::Base 5.10
+      URI::file::FAT 5.10
+      URI::file::Mac 5.10
+      URI::file::OS2 5.10
+      URI::file::QNX 5.10
+      URI::file::Unix 5.10
+      URI::file::Win32 5.10
+      URI::ftp 5.10
+      URI::gopher 5.10
+      URI::http 5.10
+      URI::https 5.10
+      URI::ldap 5.10
+      URI::ldapi 5.10
+      URI::ldaps 5.10
+      URI::mailto 5.10
+      URI::mms 5.10
+      URI::news 5.10
+      URI::nntp 5.10
+      URI::nntps 5.10
+      URI::pop 5.10
+      URI::rlogin 5.10
+      URI::rsync 5.10
+      URI::rtsp 5.10
+      URI::rtspu 5.10
+      URI::sftp 5.10
+      URI::sip 5.10
+      URI::sips 5.10
+      URI::snews 5.10
+      URI::ssh 5.10
+      URI::telnet 5.10
+      URI::tn3270 5.10
+      URI::urn 5.10
+      URI::urn::isbn 5.10
+      URI::urn::oid 5.10
+    requirements:
+      Carp 0
+      Cwd 0
+      Data::Dumper 0
+      Encode 0
+      Exporter 5.57
+      ExtUtils::MakeMaker 0
+      MIME::Base64 2
+      Net::Domain 0
+      Scalar::Util 0
+      constant 0
+      integer 0
+      overload 0
+      parent 0
+      perl 5.008001
+      strict 0
+      utf8 0
+      warnings 0
+  URI-ws-0.03
+    pathname: P/PL/PLICEASE/URI-ws-0.03.tar.gz
+    provides:
+      URI::ws 0.03
+      URI::wss 0.03
+    requirements:
+      ExtUtils::MakeMaker 6.30
+      URI 0
