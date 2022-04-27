@@ -47,6 +47,7 @@ sub connect {
             $self->{last_seq} = $body->{s};
 
             my $op_code = $body->{op};
+            my $message_type = $body->{t};
 
             if ($op_code == 10) {
                 my $w = AnyEvent->timer (after => $body->{d}{heartbeat_interval} / 1000, interval => $body->{d}{heartbeat_interval} / 1000, cb => sub {
@@ -71,27 +72,30 @@ sub connect {
                 });
 
                 $connection->send($json);
-            }
-
-            if ($body->{t} eq "MESSAGE_CREATE" && !$body->{d}{author}{bot}) {
+            } else {
+                if ($message_type eq "MESSAGE_CREATE" && exists $self->{times}{$body->{d}{channel_id}} && !$body->{d}{author}{bot}) {
                 my $req = HTTP::Request->new(POST => $webhook_url);
                 $req->header(
                     "Content-Type" => "application/json"
                 );
 
+                    my $msg_url = sprintf("https://discord.com/channels/%s/%s/%s", $body->{d}{guild_id}, $body->{d}{channel_id}, $body->{d}{id});
+                    my $link_text = $self->{times}->{$body->{d}{channel_id}}{topic} // $self->{times}->{$body->{d}{channel_id}}{name};
+                    my $display_msg = sprintf("[%s](%s) %s", $link_text, $msg_url, $body->{d}{content});
                 my $msg_url = "https://discord.com/channels/" . $body->{d}{guild_id} . "/" . $body->{d}{channel_id} . "/" . $body->{d}{id};
 
                 $req->content(encode_json({
-                        content => "[" . $self->{times}->{$body->{d}{channel_id}}{topic} . "](" . $msg_url . ") " . $body->{d}{content},
+                            content => $display_msg,
                         username => $body->{d}{author}{username},
                     }));
 
                 my $res = $ua->request($req);
-            } elsif ($body->{t} eq "GUILD_CREATE") {
+                } elsif ($message_type eq "GUILD_CREATE") {
                 $self->{times}{$_->{id}} = {
                     name => $_->{name},
                     topic => $_->{topic},
                 } for @{[grep { $_->{name} =~ /^times_.*$/ } @{$body->{d}{channels}}]};
+                }
             }
         });
     });
