@@ -14,6 +14,8 @@ use DDP;
 sub new {
     my $class = shift;
     my $self = {
+        connection => undef,
+        heartbeat_interval => 41.25,
         last_seq => 0,
         times => {},
     };
@@ -21,8 +23,6 @@ sub new {
 }
 
 sub connect {
-    p @_;
-
     my $self = shift;
     my $token = shift;
     my $webhook_url = shift;
@@ -32,31 +32,33 @@ sub connect {
 
     my $ws_url = _get_ws_url($ua);
 
+    my $heartbeat_timer = AnyEvent->timer (after => $self->{heartbeat_interval}, interval => $self->{heartbeat_interval}, cb => sub {
+        my $heartbeat = encode_json({
+            op => 1,
+            d => $self->{last_seq} // 0
+        });
+        $self->{connection}->send($heartbeat);
+    });
+
     my $ws = AnyEvent::WebSocket::Client->new;
     $ws->connect($ws_url . '/?v=9&encoding=json')->cb(sub {
-        our $connection = eval { shift->recv };
+        $self->{connection} = eval { shift->recv };
         if ($@) {
             warn $@;
             return;
         }
 
-        $connection->on(each_message => sub {
+        $self->{connection}->on(each_message => sub {
             my ($connection, $message) = @_;
             my $body = decode_json($message->body);
 
             $self->{last_seq} = $body->{s};
 
             my $op_code = $body->{op};
-            my $message_type = $body->{t};
-
+            
             if ($op_code == 10) {
-                my $w = AnyEvent->timer (after => $body->{d}{heartbeat_interval} / 1000, interval => $body->{d}{heartbeat_interval} / 1000, cb => sub {
-                    my $heartbeat = encode_json({
-                        op => 1,
-                        d => $self->{last_seq}
-                    });
-                    $connection->send($heartbeat);
-                });
+                # Hello
+                $self->{heartbeat_interval} = $body->{d}{heartbeat_interval} / 1000;
 
                 my $json = encode_json({
                     op => 2,
@@ -70,32 +72,36 @@ sub connect {
                         }
                     }
                 });
-
                 $connection->send($json);
+            } elsif ($op_code == 11) {
+                # Heartbeat ACK
+                # Don't have to do anything.
             } else {
+                # Dispatch
+                my $message_type = $body->{t};
                 if ($message_type eq "MESSAGE_CREATE" && exists $self->{times}{$body->{d}{channel_id}} && !$body->{d}{author}{bot}) {
-                my $req = HTTP::Request->new(POST => $webhook_url);
-                $req->header(
-                    "Content-Type" => "application/json"
-                );
+                    my $req = HTTP::Request->new(POST => $webhook_url);
+                    $req->header(
+                        "Content-Type" => "application/json"
+                    );
 
                     my $msg_url = sprintf("https://discord.com/channels/%s/%s/%s", $body->{d}{guild_id}, $body->{d}{channel_id}, $body->{d}{id});
                     my $link_text = $self->{times}->{$body->{d}{channel_id}}{topic} // $self->{times}->{$body->{d}{channel_id}}{name};
                     my $display_msg = sprintf("[%s](%s) %s", $link_text, $msg_url, $body->{d}{content});
                     my $avatar_url = sprintf("https://cdn.discordapp.com/avatars/%s/%s.png", $body->{d}{author}{id}, $body->{d}{author}{avatar});
-
-                $req->content(encode_json({
-                            content => $display_msg,
+                    
+                    $req->content(encode_json({
+                        content => $display_msg,
                         username => $body->{d}{author}{username},
-                            avatar_url => $avatar_url,
+                        avatar_url => $avatar_url,
                     }));
 
-                my $res = $ua->request($req);
+                    my $res = $ua->request($req);
                 } elsif ($message_type eq "GUILD_CREATE") {
-                $self->{times}{$_->{id}} = {
-                    name => $_->{name},
-                    topic => $_->{topic},
-                } for @{[grep { $_->{name} =~ /^times_.*$/ } @{$body->{d}{channels}}]};
+                    $self->{times}{$_->{id}} = {
+                        name => $_->{name},
+                        topic => $_->{topic},
+                    } for @{[grep { $_->{name} =~ /^times_.*$/ } @{$body->{d}{channels}}]};
                 }
             }
         });
