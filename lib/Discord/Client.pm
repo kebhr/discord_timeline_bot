@@ -82,11 +82,12 @@ sub connect {
                     my $msg_url = sprintf("https://discord.com/channels/%s/%s/%s", $body->{d}{guild_id}, $body->{d}{channel_id}, $body->{d}{id});
                     my $link_text = $self->{times}->{$body->{d}{channel_id}}{topic} // $self->{times}->{$body->{d}{channel_id}}{name};
                     my $display_msg = sprintf("[%s](%s) %s", $link_text, $msg_url, $body->{d}{content});
-                my $msg_url = "https://discord.com/channels/" . $body->{d}{guild_id} . "/" . $body->{d}{channel_id} . "/" . $body->{d}{id};
+                    my $avatar_url = sprintf("https://cdn.discordapp.com/avatars/%s/%s.png", $body->{d}{author}{id}, $body->{d}{author}{avatar});
 
                 $req->content(encode_json({
                             content => $display_msg,
                         username => $body->{d}{author}{username},
+                            avatar_url => $avatar_url,
                     }));
 
                 my $res = $ua->request($req);
