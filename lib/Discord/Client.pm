@@ -14,6 +14,7 @@ use DDP;
 sub new {
     my $class = shift;
     my $self = {
+        ua => undef,
         connection => undef,
         heartbeat_interval => 41.25,
         last_seq => 0,
@@ -27,10 +28,10 @@ sub connect {
     my $token = shift;
     my $webhook_url = shift;
 
-    my $ua = LWP::UserAgent->new;
-    $ua->agent("discord_timeline_bot/0.1");
+    $self->{ua} = LWP::UserAgent->new;
+    $self->{ua}->agent("discord_timeline_bot/0.1");
 
-    my $ws_url = _get_ws_url($ua);
+    my $ws_url = $self->get_ws_url;
 
     my $heartbeat_timer = AnyEvent->timer (after => $self->{heartbeat_interval}, interval => $self->{heartbeat_interval}, cb => sub {
         my $heartbeat = encode_json({
@@ -96,7 +97,7 @@ sub connect {
                         avatar_url => $avatar_url,
                     }));
 
-                    my $res = $ua->request($req);
+                    my $res = $self->{ua}->request($req);
                 } elsif ($message_type eq "GUILD_CREATE") {
                     $self->{times}{$_->{id}} = {
                         name => $_->{name},
@@ -111,9 +112,9 @@ sub connect {
 }
 
 sub _get_ws_url {
-    my $ua = shift;
+    my $self = shift;
     my $req = HTTP::Request->new(GET => 'https://discordapp.com/api/gateway');
-    my $res = $ua->request($req);
+    my $res = $self->{ua}->request($req);
     return decode_json($res->content)->{url};
 }
 
