@@ -3,6 +3,8 @@ package Discord::Client;
 use strict;
 use warnings;
 
+use Log::Logger;
+
 use utf8;
 use JSON;
 use LWP;
@@ -13,7 +15,12 @@ use DDP;
 
 sub new {
     my $class = shift;
+
+    my $logger = Log::Logger->new;
+    $logger->enable_debug_mode;
+
     my $self = {
+        logger => $logger,
         ua => undef,
         connection => undef,
         heartbeat_interval => 41.25,
@@ -49,6 +56,8 @@ sub connect {
             return;
         }
 
+        $self->{logger}->info("connected");
+
         $self->{connection}->on(each_message => sub {
             my ($connection, $message) = @_;
             my $body = decode_json($message->body);
@@ -59,6 +68,8 @@ sub connect {
             
             if ($op_code == 10) {
                 # Hello
+                $self->{logger}->debug("received hello(10)");
+
                 $self->{heartbeat_interval} = $body->{d}{heartbeat_interval} / 1000;
 
                 my $json = encode_json({
@@ -77,8 +88,10 @@ sub connect {
             } elsif ($op_code == 11) {
                 # Heartbeat ACK
                 # Don't have to do anything.
-            } else {
+                $self->{logger}->debug("received heartbeat ack(11)");
+            } elsif ($op_code == 0) {
                 # Dispatch
+                $self->{logger}->debug("received dispatch(0) type=@{[$body->{t}]}");
                 my $message_type = $body->{t};
                 if ($message_type eq "MESSAGE_CREATE" && exists $self->{times}{$body->{d}{channel_id}} && !$body->{d}{author}{bot}) {
                     my $req = HTTP::Request->new(POST => $webhook_url);
@@ -108,6 +121,8 @@ sub connect {
         });
 
         $self->{connection}->on(finish => sub {
+            $self->{logger}->warn("connection closed");
+            $self->{logger}->info("attempt to reconnect");
             AnyEvent->condvar->send;
             $self->connect;
         });
