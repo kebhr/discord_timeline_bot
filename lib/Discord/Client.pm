@@ -31,7 +31,7 @@ sub connect {
     $self->{ua} = LWP::UserAgent->new;
     $self->{ua}->agent("discord_timeline_bot/0.1");
 
-    my $ws_url = $self->get_ws_url;
+    my $ws_url = $self->_get_ws_url;
 
     my $heartbeat_timer = AnyEvent->timer (after => $self->{heartbeat_interval}, interval => $self->{heartbeat_interval}, cb => sub {
         my $heartbeat = encode_json({
