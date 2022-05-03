@@ -106,6 +106,11 @@ sub connect {
                 }
             }
         });
+
+        $self->{connection}->on(finish => sub {
+            AnyEvent->condvar->send;
+            $self->connect;
+        });
     });
 
     AnyEvent->condvar->recv;
