@@ -23,9 +23,14 @@ sub new {
         logger => $logger,
         ua => undef,
         connection => undef,
+        token => undef,
+        session_id => undef,
         heartbeat_interval => 41.25,
+        heartbeat_timer => undef,
+        initiated => 0,
         last_seq => 0,
         times => {},
+        count => 0,
     };
     return bless $self, $class;
 }
@@ -35,12 +40,15 @@ sub connect {
     my $token = shift;
     my $webhook_url = shift;
 
+    $self->{token} = $token if defined $token;
+
     $self->{ua} = LWP::UserAgent->new;
     $self->{ua}->agent("discord_timeline_bot/0.1");
 
     my $ws_url = $self->_get_ws_url;
 
-    my $heartbeat_timer = AnyEvent->timer (after => $self->{heartbeat_interval}, interval => $self->{heartbeat_interval}, cb => sub {
+    $self->{heartbeat_timer} = AnyEvent->timer (after => $self->{heartbeat_interval}, interval => $self->{heartbeat_interval}, cb => sub {
+        $self->{logger}->debug("send heartbeat");
         my $heartbeat = encode_json({
             op => 1,
             d => $self->{last_seq} // 0
@@ -58,11 +66,24 @@ sub connect {
 
         $self->{logger}->info("connected");
 
+        if ($self->{initiated} == !!1) {
+            $self->{logger}->debug("send resume");
+            my $json = encode_json({
+                op => 6,
+                d => {
+                    token => $self->{token},
+                    session_id => $self->{session_id},
+                    seq => $self->{last_seq},
+                }
+            });
+            $self->{connection}->send($json);
+        }
+
         $self->{connection}->on(each_message => sub {
             my ($connection, $message) = @_;
             my $body = decode_json($message->body);
 
-            $self->{last_seq} = $body->{s};
+            $self->{last_seq}++ if defined $body->{s};
 
             my $op_code = $body->{op};
             
@@ -72,19 +93,23 @@ sub connect {
 
                 $self->{heartbeat_interval} = $body->{d}{heartbeat_interval} / 1000;
 
-                my $json = encode_json({
-                    op => 2,
-                    d => {
-                        token => $token,
-                        intents => 513,
-                        properties => {
-                            '$os' => "linux",
-                            '$browser' => 'discord_timeline_bot',
-                            '$device' => 'discord_timeline_bot'
+                if ($self->{initiated} == 0) {
+                    $self->{logger}->debug("send identify");
+                    my $json = encode_json({
+                        op => 2,
+                        d => {
+                            token => $self->{token},
+                            intents => 513,
+                            properties => {
+                                '$os' => "linux",
+                                '$browser' => 'discord_timeline_bot',
+                                '$device' => 'discord_timeline_bot'
+                            }
                         }
-                    }
-                });
-                $connection->send($json);
+                    });
+                    $connection->send($json);
+                    $self->{initiated} = !!1;
+                }
             } elsif ($op_code == 11) {
                 # Heartbeat ACK
                 # Don't have to do anything.
@@ -116,19 +141,39 @@ sub connect {
                         name => $_->{name},
                         topic => $_->{topic},
                     } for @{[grep { $_->{name} =~ /^times_.*$/ } @{$body->{d}{channels}}]};
+                } elsif ($message_type eq "READY") {
+                    $self->{session_id} = $body->{d}{session_id};
                 }
+            } elsif ($op_code == 9) {
+                $self->{logger}->debug("send identify again");
+                my $json = encode_json({
+                    op => 2,
+                    d => {
+                        token => $self->{token},
+                        intents => 513,
+                        properties => {
+                            '$os' => "linux",
+                            '$browser' => 'discord_timeline_bot',
+                            '$device' => 'discord_timeline_bot'
+                        }
+                    }
+                });
+                $connection->send($json);
             }
         });
 
         $self->{connection}->on(finish => sub {
             $self->{logger}->warn("connection closed");
-            $self->{logger}->info("attempt to reconnect");
-            AnyEvent->condvar->send;
-            $self->connect;
+            $self->{logger}->info("attempt to reconnect in 10 seconds");
+
+            my $reconnect;
+            $reconnect = AnyEvent->timer(after => 10, cb => sub {
+                $self->{logger}->info("attempt to reconnect");
+                $self->connect;
+                $reconnect = undef;
+            });
         });
     });
-
-    AnyEvent->condvar->recv;
 }
 
 sub _get_ws_url {
