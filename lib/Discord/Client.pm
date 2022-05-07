@@ -15,6 +15,8 @@ use DDP;
 
 sub new {
     my $class = shift;
+    my $token = shift;
+    my $webhook_url = shift;
 
     my $logger = Log::Logger->new;
     $logger->enable_debug_mode;
@@ -23,7 +25,8 @@ sub new {
         logger => $logger,
         ua => undef,
         connection => undef,
-        token => undef,
+        token => $token,
+        webhook_url => $webhook_url,
         session_id => undef,
         heartbeat_interval => 41.25,
         heartbeat_timer => undef,
@@ -37,10 +40,6 @@ sub new {
 
 sub connect {
     my $self = shift;
-    my $token = shift;
-    my $webhook_url = shift;
-
-    $self->{token} = $token if defined $token;
 
     $self->{ua} = LWP::UserAgent->new;
     $self->{ua}->agent("discord_timeline_bot/0.1");
@@ -119,7 +118,7 @@ sub connect {
                 $self->{logger}->debug("received dispatch(0) type=@{[$body->{t}]}");
                 my $message_type = $body->{t};
                 if ($message_type eq "MESSAGE_CREATE" && exists $self->{times}{$body->{d}{channel_id}} && !$body->{d}{author}{bot}) {
-                    my $req = HTTP::Request->new(POST => $webhook_url);
+                    my $req = HTTP::Request->new(POST => $self->{webhook_url});
                     $req->header(
                         "Content-Type" => "application/json"
                     );
