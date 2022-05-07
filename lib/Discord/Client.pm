@@ -12,6 +12,7 @@ use LWP::UserAgent;
 use AnyEvent;
 use AnyEvent::WebSocket::Client;
 use DDP;
+use namespace::autoclean;
 
 sub new {
     my $class = shift;

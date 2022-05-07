@@ -4,6 +4,7 @@ use strict;
 use warnings;
 
 use Log::Minimal;
+use namespace::autoclean;
 
 sub new {
     my $class = shift;

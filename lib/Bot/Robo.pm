@@ -4,6 +4,7 @@ use strict;
 use warnings;
 
 use Discord::Client;
+use namespace::autoclean;
 
 sub new {
     my ($class, $config) = @_;
