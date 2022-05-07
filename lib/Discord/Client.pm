@@ -136,6 +136,11 @@ sub connect {
                     }));
 
                     my $res = $self->{ua}->request($req);
+                } elsif ($message_type eq "CHANNEL_UPDATE" || $message_type eq "CHANNEL_CREATE") {
+                    $self->{times}{$body->{d}{id}} = {
+                        name => $body->{d}{name},
+                        topic => $body->{d}{topic},
+                    };
                 } elsif ($message_type eq "GUILD_CREATE") {
                     $self->{times}{$_->{id}} = {
                         name => $_->{name},
