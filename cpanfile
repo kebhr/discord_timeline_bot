@@ -1,5 +1,6 @@
 # Util
 requires 'JSON';
+requires 'namespace::autoclean';
 
 # Network
 requires 'AnyEvent::WebSocket::Client';
