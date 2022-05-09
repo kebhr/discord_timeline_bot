@@ -9,6 +9,12 @@ use namespace::autoclean;
 sub new {
     my $class = shift;
     my $self = {};
+
+    $Log::Minimal::PRINT = sub {
+        my ( $time, $type, $message, $trace, $raw_message ) = @_;
+        print "$time [$type] $message\n";
+    };
+
     return bless $self, $class;
 }
 
@@ -19,25 +25,34 @@ sub enable_debug_mode {
 sub debug {
     my $self = shift;
     my $message = shift;
-    debugf($message);
+    my $trace = $self->_trace;
+    debugf("%s at %s", $message, $trace);
 }
 
 sub info {
     my $self = shift;
     my $message = shift;
-    infof($message);
+    my $trace = $self->_trace;
+    infof("%s at %s", $message, $trace);
 }
 
 sub warn {
     my $self = shift;
     my $message = shift;
-    warnf($message);
+    my $trace = $self->_trace;
+    warnf("%s at %s", $message, $trace);
 }
 
 sub crit {
     my $self = shift;
     my $message = shift;
-    critf($message);
+    my $trace = $self->_trace;
+    critf("%s at %s", $message, $trace);
+}
+
+sub _trace {
+    my ($package, $filename, $line) = caller(1);
+    return sprintf("%s line %d", $filename, $line);
 }
 
 1;
