@@ -33,8 +33,8 @@ sub new {
         heartbeat_timer => undef,
         initiated => 0,
         last_seq => 0,
-        times => {},
         count => 0,
+        handlers => {},
     };
     return bless $self, $class;
 }
@@ -96,6 +96,25 @@ sub connect {
     });
 }
 
+sub on {
+    my $self = shift;
+    my $operation = shift;
+    my $handler = shift;
+    $self->{handlers}{$operation} = $handler;
+}
+
+sub webhook_post {
+    my $self = shift;
+    my $content = shift;
+
+    my $req = HTTP::Request->new(POST => $self->{webhook_url});
+    $req->header(
+        "Content-Type" => "application/json"
+    );
+    $req->content(encode_json($content));
+    $self->{ua}->request($req);
+}
+
 # op code = 0
 sub _dispatch {
     my $self = shift;
@@ -103,37 +122,15 @@ sub _dispatch {
 
     $self->{logger}->debug("received dispatch(0) type=@{[$body->{t}]}");
     my $message_type = $body->{t};
-    if ($message_type eq "MESSAGE_CREATE" && exists $self->{times}{$body->{d}{channel_id}} && !$body->{d}{author}{bot}) {
-        my $req = HTTP::Request->new(POST => $self->{webhook_url});
-        $req->header(
-            "Content-Type" => "application/json"
-        );
+    $self->{session_id} = $body->{d}{session_id} if $message_type eq "READY";
+    $self->{handlers}->{$message_type}->($body) if exists $self->{handlers}->{$message_type};
+}
 
-        my $msg_url = sprintf("https://discord.com/channels/%s/%s/%s", $body->{d}{guild_id}, $body->{d}{channel_id}, $body->{d}{id});
-        my $link_text = $self->{times}->{$body->{d}{channel_id}}{topic} // $self->{times}->{$body->{d}{channel_id}}{name};
-        my $display_msg = sprintf("[%s](%s) %s", $link_text, $msg_url, $body->{d}{content});
-        my $avatar_url = sprintf("https://cdn.discordapp.com/avatars/%s/%s.png", $body->{d}{author}{id}, $body->{d}{author}{avatar});
-        
-        $req->content(encode_json({
-            content => $display_msg,
-            username => $body->{d}{author}{username},
-            avatar_url => $avatar_url,
-        }));
-
-        my $res = $self->{ua}->request($req);
-    } elsif ($message_type eq "CHANNEL_UPDATE" || $message_type eq "CHANNEL_CREATE") {
-        $self->{times}{$body->{d}{id}} = {
-            name => $body->{d}{name},
-            topic => $body->{d}{topic},
-        };
-    } elsif ($message_type eq "GUILD_CREATE") {
-        $self->{times}{$_->{id}} = {
-            name => $_->{name},
-            topic => $_->{topic},
-        } for @{[grep { $_->{name} =~ /^times_.*$/ } @{$body->{d}{channels}}]};
-    } elsif ($message_type eq "READY") {
-        $self->{session_id} = $body->{d}{session_id};
-    }
+sub _get_ws_url {
+    my $self = shift;
+    my $req = HTTP::Request->new(GET => 'https://discordapp.com/api/gateway');
+    my $res = $self->{ua}->request($req);
+    return decode_json($res->content)->{url};
 }
 
 # op code = 9
@@ -164,13 +161,6 @@ sub _heartbeat_ack {
     my $self = shift;
 
     $self->{logger}->debug("received heartbeat ack(11)");
-}
-
-sub _get_ws_url {
-    my $self = shift;
-    my $req = HTTP::Request->new(GET => 'https://discordapp.com/api/gateway');
-    my $res = $self->{ua}->request($req);
-    return decode_json($res->content)->{url};
 }
 
 sub _send_heartbeat {
