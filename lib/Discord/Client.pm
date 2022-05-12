@@ -9,6 +9,7 @@ use utf8;
 use JSON;
 use LWP;
 use LWP::UserAgent;
+use HTTP::Request::Common;
 use AnyEvent;
 use AnyEvent::WebSocket::Client;
 use DDP;
@@ -106,13 +107,25 @@ sub on {
 sub webhook_post {
     my $self = shift;
     my $content = shift;
+    my $attachments = shift;
 
-    my $req = HTTP::Request->new(POST => $self->{webhook_url});
-    $req->header(
-        "Content-Type" => "application/json"
+    my $payload = [];
+    
+    push(@$payload, "payload_json" => [undef, undef, Content_type => "application/json", Content => encode_json($content)]);
+
+    if (defined $attachments) {
+        for (0..@{$attachments}-1) {
+            my $req = HTTP::Request->new(GET => $attachments->[$_]->{url});
+            my $image = $self->{ua}->request($req)->content;
+            push(@$payload, "files[$_]" => [undef, $attachments->[$_]->{filename}, Content_Type => $attachments->[$_]->{content_type}, Content => $image]);
+        }
+    }
+
+    $self->{ua}->request(
+        POST $self->{webhook_url},
+        Content_Type => 'multipart/form-data',
+        Content      => $payload,
     );
-    $req->content(encode_json($content));
-    $self->{ua}->request($req);
 }
 
 # op code = 0

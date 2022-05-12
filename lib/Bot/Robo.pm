@@ -44,7 +44,7 @@ sub _message_create {
         avatar_url => $avatar_url,
     };
 
-    $self->{discord}->webhook_post($content);
+    $self->{discord}->webhook_post($content, $body->{d}{attachments});
 }
 
 sub _channel_create {
