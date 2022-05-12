@@ -115,9 +115,8 @@ sub webhook_post {
 
     if (defined $attachments) {
         for (0..@{$attachments}-1) {
-            my $req = HTTP::Request->new(GET => $attachments->[$_]->{url});
-            my $image = $self->{ua}->request($req)->content;
-            push(@$payload, "files[$_]" => [undef, $attachments->[$_]->{filename}, Content_Type => $attachments->[$_]->{content_type}, Content => $image]);
+            my $file = $self->_download($attachments->[$_]->{url});
+            push(@$payload, "files[$_]" => [undef, $attachments->[$_]->{filename}, Content_Type => $attachments->[$_]->{content_type}, Content => $file]);
         }
     }
 
@@ -126,6 +125,14 @@ sub webhook_post {
         Content_Type => 'multipart/form-data',
         Content      => $payload,
     );
+}
+
+sub _download {
+    my $self = shift;
+    my $url = shift;
+    
+    my $req = HTTP::Request->new(GET => $url);
+    return $self->{ua}->request($req)->content;
 }
 
 # op code = 0
