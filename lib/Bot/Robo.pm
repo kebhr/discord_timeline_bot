@@ -50,14 +50,13 @@ sub _message_create {
 sub _channel_create {
     my $self = shift;
     my $body = shift;
-    $self->_refresh_channel_info($body->{d});
+    $self->_refresh_channel_info($body->{d}) if $body->{d}{name} =~ /^times_.*$/;
 }
 
 sub _channel_update {
     my $self = shift;
     my $body = shift;
-    $self->_refresh_channel_info($body->{d});
-    
+    $self->_refresh_channel_info($body->{d}) if $body->{d}{name} =~ /^times_.*$/;
 }
 
 sub _guild_create {
