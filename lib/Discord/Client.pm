@@ -16,26 +16,24 @@ use DDP;
 use namespace::autoclean;
 
 sub new {
-    my $class = shift;
-    my $token = shift;
-    my $webhook_url = shift;
+    my ($class, $token, $webhook_url) = @_;
 
     my $logger = Log::Logger->new;
     $logger->enable_debug_mode;
 
     my $self = {
-        logger => $logger,
-        ua => undef,
-        connection => undef,
-        token => $token,
-        webhook_url => $webhook_url,
-        session_id => undef,
-        heartbeat_interval => 41.25,
-        heartbeat_timer => undef,
-        initiated => 0,
-        last_seq => 0,
-        count => 0,
-        handlers => {},
+        logger              => $logger,
+        ua                  => undef,
+        connection          => undef,
+        token               => $token,
+        webhook_url         => $webhook_url,
+        session_id          => undef,
+        heartbeat_interval  => 41.25,
+        heartbeat_timer     => undef,
+        initiated           => 0,
+        last_seq            => 0,
+        count               => 0,
+        handlers            => {},
     };
     return bless $self, $class;
 }
@@ -98,16 +96,12 @@ sub connect {
 }
 
 sub on {
-    my $self = shift;
-    my $operation = shift;
-    my $handler = shift;
+    my ($self, $operation, $handler) = @_;
     $self->{handlers}{$operation} = $handler;
 }
 
 sub webhook_post {
-    my $self = shift;
-    my $content = shift;
-    my $attachments = shift;
+    my ($self, $content, $attachments) = @_;
 
     my $payload = [];
     
@@ -187,8 +181,8 @@ sub _send_heartbeat {
     my $self = shift;
     $self->{logger}->debug("send heartbeat");
     my $heartbeat = encode_json({
-        op => 1,
-        d => $self->{last_seq} // 0
+        op  => 1,
+        d   => $self->{last_seq} // 0
     });
     $self->{connection}->send($heartbeat);
 }
@@ -197,14 +191,14 @@ sub _send_identity {
     my $self = shift;
     $self->{logger}->debug("send identify");
     my $json = encode_json({
-        op => 2,
-        d => {
-            token => $self->{token},
-            intents => 513,
-            properties => {
-                '$os' => "linux",
-                '$browser' => 'discord_timeline_bot',
-                '$device' => 'discord_timeline_bot'
+        op  => 2,
+        d   => {
+            token       => $self->{token},
+            intents     => 513,
+            properties  => {
+                '$os'       => "linux",
+                '$browser'  => 'discord_timeline_bot',
+                '$device'   => 'discord_timeline_bot'
             }
         }
     });
@@ -215,11 +209,11 @@ sub _send_resume {
     my $self = shift;
     $self->{logger}->debug("send resume");
     my $json = encode_json({
-        op => 6,
-        d => {
-            token => $self->{token},
-            session_id => $self->{session_id},
-            seq => $self->{last_seq},
+        op  => 6,
+        d   => {
+            token       => $self->{token},
+            session_id  => $self->{session_id},
+            seq         => $self->{last_seq},
         }
     });
     $self->{connection}->send($json);
