@@ -41,7 +41,7 @@ sub _message_create {
 
     my $content = {
         content     => $display_msg,
-        username    => $body->{d}{member}{nick} // $body->{d}{author}{username},
+        username    => $body->{d}{member}{nick} // ($body->{d}{author}{global_name} // $body->{d}{author}{username}),
         avatar_url  => $avatar_url,
     };
 
